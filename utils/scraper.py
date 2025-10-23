@@ -85,6 +85,7 @@ def _parse_speakers_html(html: str) -> list[dict]:
     
     # Try multiple possible selectors for speaker cards
     speaker_selectors = [
+        '.speaker-grid-item',
         '.speaker',
         '.speaker-card', 
         '.speaker-item',
@@ -133,6 +134,26 @@ def _extract_speaker_data(element) -> dict:
     name = _extract_text_by_selectors(element, name_selectors)
     title = _extract_text_by_selectors(element, title_selectors)
     company = _extract_text_by_selectors(element, company_selectors)
+    
+    # Special handling for .speaker-job field (contains both title and company)
+    if not title and not company:
+        job_text = _extract_text_by_selectors(element, ['.speaker-job', 'p'])
+        if job_text:
+            # Try to split title and company from job text
+            # Look for patterns like "Title at Company" or "Title, Company"
+            job_parts = job_text.split(' at ')
+            if len(job_parts) == 2:
+                title = job_parts[0].strip()
+                company = job_parts[1].strip()
+            else:
+                # If no "at" found, try comma separation
+                job_parts = job_text.split(', ')
+                if len(job_parts) == 2:
+                    title = job_parts[0].strip()
+                    company = job_parts[1].strip()
+                else:
+                    # If no clear separation, use the whole text as title
+                    title = job_text.strip()
     
     # Clean up the extracted text
     name = _clean_text(name)
