@@ -1,0 +1,11 @@
+google-generativeai
+aiohttp
+beautifulsoup4
+pandas
+python-dotenv
+lxml
+pytest
+pytest-asyncio
+pytest-cov
+tenacity
+pydantic

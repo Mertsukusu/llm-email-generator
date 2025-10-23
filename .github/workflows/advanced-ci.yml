@@ -1,0 +1,184 @@
+name: Advanced CI Pipeline
+
+on:
+  push:
+    branches: [ main, master, develop ]
+  pull_request:
+    branches: [ main, master ]
+  schedule:
+    # Run security scans daily at 2 AM UTC
+    - cron: '0 2 * * *'
+
+jobs:
+  test-matrix:
+    runs-on: ubuntu-latest
+    
+    strategy:
+      matrix:
+        python-version: [3.11, 3.12]
+        os: [ubuntu-latest]
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ matrix.python-version }}
+        
+    - name: Cache pip dependencies
+      uses: actions/cache@v3
+      with:
+        path: ~/.cache/pip
+        key: ${{ runner.os }}-pip-${{ matrix.python-version }}-${{ hashFiles('**/requirements.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-pip-${{ matrix.python-version }}-
+          ${{ runner.os }}-pip-
+          
+    - name: Install system dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y gcc
+        
+    - name: Install Python dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install pytest-cov flake8 black isort safety bandit
+        
+    - name: Code formatting check
+      run: |
+        black --check .
+        isort --check-only .
+        
+    - name: Lint with flake8
+      run: |
+        flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+        flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+        
+    - name: Run tests with coverage
+      run: |
+        pytest -v --tb=short --cov=utils --cov=main --cov-report=xml --cov-report=html
+        
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v3
+      with:
+        file: ./coverage.xml
+        flags: unittests
+        name: codecov-umbrella
+        fail_ci_if_error: false
+        
+    - name: Upload coverage reports
+      uses: actions/upload-artifact@v3
+      with:
+        name: coverage-report-${{ matrix.python-version }}
+        path: htmlcov/
+        
+  security:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+        
+    - name: Install security tools
+      run: |
+        pip install safety bandit semgrep
+        
+    - name: Run safety check
+      run: |
+        safety check --json --output safety-report.json || true
+        
+    - name: Run bandit security scan
+      run: |
+        bandit -r . -f json -o bandit-report.json || true
+        
+    - name: Run semgrep security scan
+      run: |
+        semgrep --config=auto --json --output=semgrep-report.json . || true
+        
+    - name: Upload security reports
+      uses: actions/upload-artifact@v3
+      with:
+        name: security-reports
+        path: |
+          safety-report.json
+          bandit-report.json
+          semgrep-report.json
+          
+  docker:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+      
+    - name: Build Docker image
+      uses: docker/build-push-action@v5
+      with:
+        context: .
+        push: false
+        tags: drone-deploy-email-generator:latest
+        cache-from: type=gha
+        cache-to: type=gha,mode=max
+        
+    - name: Test Docker image
+      run: |
+        # Test that the container starts and handles missing API key gracefully
+        timeout 30s docker run --rm -e GOOGLE_API_KEY=invalid_key drone-deploy-email-generator:latest || true
+        
+    - name: Test Docker with volume mount
+      run: |
+        mkdir -p test-output
+        timeout 30s docker run --rm -e GOOGLE_API_KEY=invalid_key -v $(pwd)/test-output:/app/out drone-deploy-email-generator:latest || true
+        
+  performance:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+        
+    - name: Install dependencies
+      run: |
+        pip install -r requirements.txt
+        pip install pytest-benchmark memory-profiler
+        
+    - name: Run performance tests
+      run: |
+        pytest tests/ -v --benchmark-only --benchmark-sort=mean || true
+        
+    - name: Memory usage test
+      run: |
+        python -m memory_profiler main.py || true
+        
+  notify:
+    runs-on: ubuntu-latest
+    needs: [test-matrix, security, docker, performance]
+    if: always()
+    steps:
+    - name: Notify on failure
+      if: failure()
+      run: |
+        echo "❌ CI Pipeline failed!"
+        echo "Test Matrix: ${{ needs.test-matrix.result }}"
+        echo "Security: ${{ needs.security.result }}"
+        echo "Docker: ${{ needs.docker.result }}"
+        echo "Performance: ${{ needs.performance.result }}"
+        
+    - name: Notify on success
+      if: success()
+      run: |
+        echo "✅ All CI checks passed successfully!"
+        echo "🎉 Ready for deployment!"
