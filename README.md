@@ -1,10 +1,10 @@
 # DroneDeploy Email Generation System
 
-[![CI Pipeline](https://github.com/username/drone-deploy-email-generator/workflows/CI%20Pipeline/badge.svg)](https://github.com/username/drone-deploy-email-generator/actions)
+[![CI Pipeline](https://github.com/Mertsukusu/llm-email-prospector/workflows/CI%20Pipeline/badge.svg)](https://github.com/Mertsukusu/llm-email-prospector/actions)
 [![Python 3.11](https://img.shields.io/badge/python-3.11-blue.svg)](https://www.python.org/downloads/release/python-3110/)
 [![Docker](https://img.shields.io/badge/docker-enabled-blue.svg)](https://www.docker.com/)
-[![Tests](https://img.shields.io/badge/tests-23%20passing-brightgreen.svg)](https://github.com/username/drone-deploy-email-generator/actions)
-[![Coverage](https://img.shields.io/badge/coverage-100%25-brightgreen.svg)](https://github.com/username/drone-deploy-email-generator/actions)
+[![Tests](https://img.shields.io/badge/tests-23%20passing-brightgreen.svg)](https://github.com/Mertsukusu/llm-email-prospector/actions)
+[![Coverage](https://img.shields.io/badge/coverage-100%25-brightgreen.svg)](https://github.com/Mertsukusu/llm-email-prospector/actions)
 
 ## Overview
 Generates personalized outbound emails for construction conference speakers, inviting them to DroneDeploy's booth #42. The system uses AI-powered company categorization and automated email generation with robust error handling and retry mechanisms.
@@ -125,7 +125,7 @@ This project includes a comprehensive CI/CD pipeline that automatically:
 
 ### **Build Status**
 
-[![CI Pipeline](https://github.com/username/drone-deploy-email-generator/workflows/CI%20Pipeline/badge.svg)](https://github.com/username/drone-deploy-email-generator/actions)
+[![CI Pipeline](https://github.com/Mertsukusu/llm-email-prospector/workflows/CI%20Pipeline/badge.svg)](https://github.com/Mertsukusu/llm-email-prospector/actions)
 
 **Current Status:** ✅ All tests passing | 🐳 Docker working | 🔒 Security clean
 
