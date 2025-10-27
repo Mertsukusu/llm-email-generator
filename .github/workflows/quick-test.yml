@@ -9,7 +9,6 @@ on:
 jobs:
   quick-test:
     runs-on: ubuntu-latest
-    timeout-minutes: 3  # Very fast timeout
     
     steps:
     - name: Checkout code
@@ -19,13 +18,12 @@ jobs:
       uses: actions/setup-python@v4
       with:
         python-version: '3.11'
-        cache: 'pip'
         
-    - name: Install dependencies (minimal)
+    - name: Install dependencies
       run: |
-        pip install pytest pytest-asyncio
+        python -m pip install --upgrade pip
         pip install -r requirements.txt
         
-    - name: Run critical tests only
+    - name: Run tests
       run: |
-        pytest tests/test_scraper.py -v --tb=short -x
+        pytest -v --tb=short
