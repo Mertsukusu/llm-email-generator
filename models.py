@@ -12,7 +12,7 @@ class Speaker(BaseModel):
     model_config = ConfigDict(validate_assignment=True, extra='forbid')
     
     name: str = Field(..., min_length=config.MIN_NAME_LENGTH, max_length=100)
-    title: str = Field(..., min_length=config.MIN_TITLE_LENGTH, max_length=200)
+    title: str = Field(..., min_length=config.MIN_TITLE_LENGTH, max_length=100)
     company: str = Field(..., min_length=config.MIN_COMPANY_LENGTH, max_length=100)
     
     @field_validator('name')
@@ -25,9 +25,9 @@ class Speaker(BaseModel):
         # Remove extra whitespace
         v = ' '.join(v.split())
         
-        # Basic validation - just check it's not empty and has reasonable length
-        if len(v) < 2:
-            raise ValueError('Name too short')
+        # Check for valid characters (letters, spaces, hyphens, apostrophes)
+        if not re.match(r"^[a-zA-Z\s\-'\.]+$", v):
+            raise ValueError('Name contains invalid characters')
         
         return v.strip()
     

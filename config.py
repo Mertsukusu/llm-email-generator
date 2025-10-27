@@ -14,7 +14,7 @@ GEMINI_MODEL = 'gemini-2.5-flash'
 
 # Rate Limiting Configuration
 MAX_CONCURRENT = 1  # Limit concurrent API calls for free tier
-API_DELAY = 0.1  # Delay between API calls in seconds (minimal for fastest processing)
+API_DELAY = 2  # Delay between API calls in seconds
 MAX_RETRIES = 3  # Maximum retry attempts for API calls
 
 # Retry Configuration (for tenacity)

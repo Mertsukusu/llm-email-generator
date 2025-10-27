@@ -207,9 +207,8 @@ async def main():
     
     logger.info(f"Found {len(speakers)} speakers")
     
-    # Step 2: Process speakers concurrently (TEST MODE - only first 5)
-    test_speakers = speakers[:5]  # TEST MODE: Only process first 5 speakers
-    logger.info(f"TEST MODE: Processing only {len(test_speakers)} speakers instead of {len(speakers)}")
+    # Step 2: Process speakers concurrently
+    logger.info("Processing speakers (categorization + email generation)...")
     
     # Create semaphore to limit concurrent API calls
     semaphore = asyncio.Semaphore(config.MAX_CONCURRENT)
@@ -274,8 +273,8 @@ async def main():
                 stats.increment_api_error()
                 return None
     
-    # Process all speakers concurrently (TEST MODE)
-    tasks = [process_speaker(speaker) for speaker in test_speakers]
+    # Process all speakers concurrently
+    tasks = [process_speaker(speaker) for speaker in speakers]
     results = await asyncio.gather(*tasks, return_exceptions=True)
     
     # Filter out None results and exceptions
