@@ -1,4 +1,4 @@
-# DroneDeploy Email Generation System
+# AI Powered Email Generation System
 
 [![CI Pipeline](https://github.com/Mertsukusu/llm-email-generator/workflows/CI%20Pipeline/badge.svg)](https://github.com/Mertsukusu/llm-email-generator/actions)
 [![Python 3.11](https://img.shields.io/badge/python-3.11-blue.svg)](https://www.python.org/downloads/release/python-3110/)
@@ -7,7 +7,7 @@
 [![Coverage](https://img.shields.io/badge/coverage-100%25-brightgreen.svg)](https://github.com/Mertsukusu/llm-email-generator/actions)
 
 ## Overview
-Generates personalized outbound emails for construction conference speakers, inviting them to DroneDeploy's booth #42. The system uses AI-powered company categorization and automated email generation with robust error handling and retry mechanisms.
+Generates personalized outbound emails for construction conference speakers, inviting them to company's booth #42. The system uses AI-powered company categorization and automated email generation with robust error handling and retry mechanisms.
 
 ## Features
 
